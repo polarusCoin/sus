@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PolarSolut Clicker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #121212;
+            color: #ffffff;
+        }
+        .container {
+            text-align: center;
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+        #clickButton {
+            padding: 10px 20px;
+            font-size: 20px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+        }
+        #clickButton:hover {
+            background-color: #45a049;
+        }
+        .boost {
+            margin-top: 20px;
+        }
+        .boost button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #2196F3;
+            color: white;
+            margin-right: 10px;
+        }
+        .boost button:hover {
+            background-color: #1976D2;
+        }
+        .notification, .menu {
+            background-color: #333;
+            color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: none;
+        }
+        .notification.show, .menu.show {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        .menu button {
+            display: block;
+            width: 100%;
+            margin: 5px 0;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+        .menu button:hover {
+            background-color: #45a049;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PolarSolut</h1>
+        <div class="clicker">
+            <button id="clickButton">Кликни меня!</button>
+        </div>
+        <p>Клики: <span id="clickCount">0</span></p>
+        <div class="boost">
+            <button id="boost2x">Купить x2 за 100 кликов</button>
+            <button id="boost3x">Купить x3 за 200 кликов</button>
+            <button id="boostAuto">Купить автоклик за 500 кликов</button>
+        </div>
+        <div class="additional-buttons">
+            <button id="listingInfo">Листинг инфо</button>
+            <button id="exchangeSelect">Выбор биржи</button>
+        </div>
+        <div class="notification" id="notification">Ожидание переговоров с биржами</div>
+        <div class="menu" id="menu">
+            <button id="binance">Binance</button>
+            <button id="bingX">BingX</button>
+        </div>
+        <p id="exchangeMessage"></p>
+    </div>
+    <script>
+        let clickCount = 0;
+        let clickMultiplier = 1;
+        let autoClickers = 0;
+        let boost2xCount = 0;
+        let boost3xCount = 0;
+        let autoClickersCount = 0;
+
+        function loadData() {
+            clickCount = parseInt(localStorage.getItem('clickCount')) || 0;
+            clickMultiplier = parseInt(localStorage.getItem('clickMultiplier')) || 1;
+            autoClickers = parseInt(localStorage.getItem('autoClickers')) || 0;
+            boost2xCount = parseInt(localStorage.getItem('boost2xCount')) || 0;
+            boost3xCount = parseInt(localStorage.getItem('boost3xCount')) || 0;
+            autoClickersCount = parseInt(localStorage.getItem('autoClickersCount')) || 0;
+            document.getElementById('clickCount').textContent = clickCount;
+        }
+
+        function saveData() {
+            localStorage.setItem('clickCount', clickCount);
+            localStorage.setItem('clickMultiplier', clickMultiplier);
+            localStorage.setItem('autoClickers', autoClickers);
+            localStorage.setItem('boost2xCount', boost2xCount);
+            localStorage.setItem('boost3xCount', boost3xCount);
+            localStorage.setItem('autoClickersCount', autoClickersCount);
+        }
+
+        document.getElementById('clickButton').addEventListener('click', function(event) {
+            clickCount += clickMultiplier;
+            document.getElementById('clickCount').textContent = clickCount;
+            saveData();
+        });
+
+        document.getElementById('boost2x').addEventListener('click', function() {
+            if (clickCount >= 100 && boost2xCount < 2) {
+                clickCount -= 100;
+                clickMultiplier *= 2;
+                boost2xCount++;
+                document.getElementById('clickCount').textContent = clickCount;
+                saveData();
+            }
+        });
+
+        document.getElementById('boost3x').addEventListener('click', function() {
+            if (clickCount >= 200 && boost3xCount < 2) {
+                clickCount -= 200;
+                clickMultiplier *= 3;
+                boost3xCount++;
+                document.getElementById('clickCount').textContent = clickCount;
+                saveData();
+            }
+        });
+
+        document.getElementById('boostAuto').addEventListener('click', function() {
+            if (clickCount >= 500 && autoClickersCount < 2) {
+                clickCount -= 500;
+                autoClickers += 1;
+                autoClickersCount++;
+                document.getElementById('clickCount').textContent = clickCount;
+                saveData();
+            }
+        });
+
+        setInterval(function() {
+            clickCount += autoClickers;
+            document.getElementById('clickCount').textContent = clickCount;
+            saveData();
+        }, 1000);
+
+        document.getElementById('listingInfo').addEventListener('click', function() {
+            const notification = document.getElementById('notification');
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        });
+
+        document.getElementById('exchangeSelect').addEventListener('click', function() {
+            const menu = document.getElementById('menu');
+            menu.classList.add('show');
+        });
+
+        document.getElementById('binance').addEventListener('click', function() {
+            document.getElementById('exchangeMessage').textContent = 'Биржа выбрана: Binance';
+            document.getElementById('menu').classList.remove('show');
+        });
+
+        document.getElementById('bingX').addEventListener('click', function() {
+            document.getElementById('exchangeMessage').textContent = 'Биржа выбрана: BingX';
+            document.getElementById('menu').classList.remove('show');
+        });
+
+        window.onload = loadData;
+    </script>
+</body>
+</html>
